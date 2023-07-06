@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Zoom and Modal Example</title>
+  <style>
+    /* Updated CSS styles */
+
+    .zoom-area-container {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .zoom-area-container section {
+      padding-top: 0;
+    }
+
+    .zoom-trigger-image {
+      display: inline-block;
+      width: 100px;
+      height: auto;
+      float: left;
+    }
+
+    .zoom-detail-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+      height: 300px;
+      width: 500px;
+      min-height: 300px;
+      min-width: 500px;
+      z-index: 9999;
+    }
+
+    .zoom-action-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: left;
+    }
+
+    .zoom-button {
+      margin-bottom: 5px;
+      padding: 5px 10px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 40px; /* Adjust the width as needed */
+      text-align: center;
+    }
+
+    .zoom-in-button {
+      background-color: #2ecc71;
+      color: white;
+    }
+
+    .zoom-out-button {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .zoom-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  
+  <section class="content">
+    <article class="zoom-area-container">
+      <img class="zoom-trigger-image" src="https://scontent.fmnl5-2.fna.fbcdn.net/v/t39.30808-6/309337064_1524245571344784_3923528636367613035_n.jpg?_nc_cat=110&cb=99be929b-3346023f&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeHHUe9L2-nEIGTo7R5Pl2n__hTbbd7SNSz-FNtt3tI1LEOnTmwsJjXQaW2hTK7B4U99QdI-ARWtrvCbrjNuy-wj&_nc_ohc=ZhRqSGed9joAX9ceHmN&_nc_ht=scontent.fmnl5-2.fna&oh=00_AfBFmmmlF3IfRixoFQg-VVQ58mbqjKDVX9pEiXcIHQhEoA&oe=64AB1654" data-zoom="https://scontent.fmnl5-2.fna.fbcdn.net/v/t39.30808-6/309337064_1524245571344784_3923528636367613035_n.jpg?_nc_cat=110&cb=99be929b-3346023f&ccb=1-7&_nc_sid=09cbfe&_nc_eui2=AeHHUe9L2-nEIGTo7R5Pl2n__hTbbd7SNSz-FNtt3tI1LEOnTmwsJjXQaW2hTK7B4U99QdI-ARWtrvCbrjNuy-wj&_nc_ohc=ZhRqSGed9joAX9ceHmN&_nc_ht=scontent.fmnl5-2.fna&oh=00_AfBFmmmlF3IfRixoFQg-VVQ58mbqjKDVX9pEiXcIHQhEoA&oe=64AB1654" alt="Zoomable Image">
+      <div class="zoom-action-buttons">
+        <div><button id="zoom-in-btn" class="zoom-button zoom-in-button">+</button></div>
+        <div><button id="zoom-out-btn" class="zoom-button zoom-out-button">-</button></div>
+      </div>
+      <div class="zoom-detail-container"></div>
+    </article>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/drift-zoom/1.4.0/Drift.min.js"></script>
+  <script>
+    // JavaScript code
+    $(document).ready(function() {
+      var zoomTrigger = $('.zoom-trigger-image');
+      var zoomDetail = $('.zoom-detail-container');
+      var zoomFactor = 2;
+      var maxZoomFactor = 10;
+      var minZoomFactor = 2;
+      var driftInstance;
+
+      function createZoomInstance() {
+        driftInstance = new Drift(zoomTrigger[0], {
+          paneContainer: zoomDetail[0],
+          inlinePane: false,
+          zoomFactor: zoomFactor,
+        });
+      }
+
+      createZoomInstance();
+      updateZoomButtonsState();
+
+      zoomTrigger.on('mouseenter', function() {
+        window.addEventListener('wheel', scrollZoom);
+      });
+
+      zoomTrigger.on('mouseleave', function() {
+        window.removeEventListener('wheel', scrollZoom);
+      });
+
+      function scrollZoom(event) {
+        if (event.deltaY < 0 && zoomFactor < maxZoomFactor)
+{
+            zoomFactor++;
+        updateZoomButtonsState();
+        driftInstance.destroy();
+        createZoomInstance();
+      } else if (event.deltaY > 0 && zoomFactor > minZoomFactor) {
+        zoomFactor--;
+        updateZoomButtonsState();
+        driftInstance.destroy();
+        createZoomInstance();
+      }
+    }
+
+    $('#zoom-out-btn').on('click', function() {
+      if (zoomFactor > minZoomFactor) {
+        zoomFactor--;
+        updateZoomButtonsState();
+        driftInstance.destroy();
+        createZoomInstance();
+      }
+    });
+
+    $('#zoom-in-btn').on('click', function() {
+      if (zoomFactor < maxZoomFactor) {
+        zoomFactor++;
+        updateZoomButtonsState();
+        driftInstance.destroy();
+        createZoomInstance();
+      }
+    });
+
+    function updateZoomButtonsState() {
+      $('#zoom-out-btn').prop('disabled', zoomFactor === minZoomFactor);
+      $('#zoom-in-btn').prop('disabled', zoomFactor === maxZoomFactor);
+    }
+  });
+  </script>
+</body>
+</html>
